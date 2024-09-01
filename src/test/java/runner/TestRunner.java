@@ -15,33 +15,27 @@ import java.util.List;
         "json:target/cucumber-reports/CucumberTestReport.json", "rerun:target/cucumber-reports/rerun.txt", "json:target/cucumber-reports/retry-cucumber.json" })
 public class TestRunner {
     public static void main(String[] args) {
-        int maxRerunAttempts = 3; // Maximum number of rerun attempts
-        int rerunCount = 0;
+        int maxTestRuns = 10; // Maximum number of test runs
+        int runCount;
 
-        while (rerunCount < maxRerunAttempts) {
-            Result result = JUnitCore.runClasses(TestRunner.class);
-            List<String> failedScenarios = new ArrayList<>();
+        Result result;
+        List<String> failedScenarios = new ArrayList<>();
+        for (runCount = 0; runCount < maxTestRuns; runCount++) {
+            result = JUnitCore.runClasses(TestRunner.class);
 
             for (Failure failure : result.getFailures()) {
                 // Extract information about failed scenarios
                 failedScenarios.add(failure.getTestHeader());
             }
-
-            if (failedScenarios.isEmpty()) {
-                System.out.println("All scenarios passed.");
-                break; // No need to rerun
-            } else {
-                System.out.println("Failed scenarios:");
-                for (String scenario : failedScenarios) {
-                    System.out.println(scenario);
-                }
-                System.out.println("Rerunning failed scenarios...");
-                rerunCount++;
-            }
         }
 
-        if (rerunCount == maxRerunAttempts) {
-            System.out.println("Maximum number of rerun attempts reached. Exiting...");
+        if (failedScenarios.isEmpty()) {
+            System.out.println("All scenarios passed.");
+        } else {
+            System.out.println("Failed scenarios:");
+            for (String scenario : failedScenarios) {
+                System.out.println(scenario);
+            }
         }
     }
 }
